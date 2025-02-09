@@ -18,6 +18,13 @@ class db_randomdata extends Seeder
     public function run(): void
     {
 
+        //Seed untuk user
+        DB::table('users')->insert([
+            'name' => 'Admin',
+            'email' => 'ambatukam@gmail.com',
+            'password' => Hash::make('ambatukam'),
+        ]);
+
         //Seed untuk rumah
         for ($i = 1; $i <= 20; $i++) {
             DB::table('rumah')->insert([

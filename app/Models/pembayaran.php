@@ -40,8 +40,8 @@ class pembayaran extends Model
         return $this->belongsTo(penghuni::class);
     }
 
-    public function user(): HasMany
+    public function user(): BelongsTo
     {
-        return $this->hasMany(user::class);
+        return $this->BelongsTo(user::class);
     }
 }

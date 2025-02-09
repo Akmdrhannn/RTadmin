@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\PengeluaranResource;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PengeluaranController extends BaseController
 {
@@ -23,14 +24,14 @@ class PengeluaranController extends BaseController
             'tanggal_pengeluaran' => 'required',
             'jumlah' => 'required',
             'penerima' => 'required',
-            'bukti_pengeluaran' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+            'bukti_pengeluaran' => 'required|image|mimes:jpg,png,jpeg|max:2048',
         ]);
 
         if (!Auth::check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $userid = Auth::id(); // Get the authenticated user's ID
+        $userid = Auth::id();
 
         // Up bukti pengeluaran
         $buktitrx = $request->file('bukti_pengeluaran');
@@ -57,11 +58,34 @@ class PengeluaranController extends BaseController
     public function update(Request $request, $id)
     {
         $request->validate([
-            // Add validation rules here
+            'kategori' => 'sometimes',
+            'deskripsi' =>  'sometimes',
+            'tanggal_pengeluaran' => 'sometimes',
+            'jumlah' =>  'sometimes',
+            'penerima' =>  'sometimes',
+            'bukti_pengeluaran' => 'sometimes|image|mimes:png,jpg,jpeg|max:2048'
         ]);
+        $userid = Auth::id();
 
         $pengeluaran = pengeluaran::where('id_pengeluaran', $id)->firstOrFail();
-        $pengeluaran->update($request->all());
+        $data = [
+            'userid' => $request->userid ?? $pengeluaran->userid,
+            'kategori' => $request->kategori ?? $pengeluaran->kategori,
+            'deskripsi' => $request->deskripsi ?? $pengeluaran->deskripsi,
+            'tanggal_pengeluaran' => $request->tanggal_pengeluaran ?? $pengeluaran->tanggal_pengeluaran,
+            'jumlah' => $request->jumlah ?? $pengeluaran->jumlah,
+            'penerima' => $request->penerima ?? $pengeluaran->penerima,
+        ];
+
+        if ($request->bukti_pengeluaran) {
+            $data['bukti_pengeluaran'] = $request->bukti_pengeluaran->hashName();
+            $request->bukti_pengeluaran->storeAs('public/bukti_pengeluaran');
+            Storage::delete('public/bukti_pengeluaran' . basename($pengeluaran->bukti_pengeluaran));
+        } else {
+            $data['bukti_pengeluaran'] = $pengeluaran->bukti_pengeluaran;
+        }
+
+        $pengeluaran->update($data);
         return new PengeluaranResource(true, 'Data pengeluaran diupdate', $pengeluaran);
     }
 

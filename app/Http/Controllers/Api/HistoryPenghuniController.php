@@ -23,9 +23,7 @@ class HistoryPenghuniController extends BaseController
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            // Add validation rules here
-        ]);
+        $request->validate([]);
 
         $historyPenghuni = historyPenghuni::where('id_history_penghuni', $id)->firstOrFail();
         $historyPenghuni->update($request->all());

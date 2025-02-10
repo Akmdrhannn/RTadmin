@@ -30,7 +30,7 @@ agar mendapatkan APP_KEY
 <p>3. Jalankan migrate, seed dan artisan serve</p>
 
 ```
-php artisan migrate
+1. php artisan migrate
 2. php artisan db:seed db_randomdata
 3. php artisan serve
 ```
